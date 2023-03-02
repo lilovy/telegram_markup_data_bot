@@ -1,27 +1,28 @@
 import logging
-from config import (
-    TOKEN, 
-    WEBAPP_PORT, 
-    WEBHOOK_PATH, 
-    WEBHOOK_URL, 
-    LOCALHOST,
-    )
+from config import TOKEN, WEBAPP_HOST, WEBAPP_PORT, WEBHOOK_PATH, WEBHOOK_URL, LOCALHOST
+
 from aiohttp.web import run_app
 from aiohttp.web_app import Application
-from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
-from aiogram import (
-    Dispatcher, 
-    Router, 
-    Bot, 
-    types, 
-    F,
-    )
-from ..server.handlers import handlers
 
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+from aiogram import Dispatcher, Router, Bot, types, F
+from aiogram.methods import SendMessage
+from src.server import handlers
+
+WEBAPP_HOST = LOCALHOST  # or ip
 
 logging.basicConfig(level=logging.INFO)
 
 router = Router()
+
+
+@router.message(F.text)
+async def echo(message: types.Message):
+    # Regular request, add bot: Bot to handler kwargs
+    # await bot.send_message(message.chat.id, message.text)
+
+    # or reply INTO webhook
+    return SendMessage(chat_id=message.chat.id, text=message.text)
 
 
 @router.startup()
@@ -49,7 +50,7 @@ def main():
 
     dispatcher = Dispatcher()
     dispatcher["webhook_url"] = WEBHOOK_URL
-    dispatcher.include_routers(router, handlers.router)
+    dispatcher.include_routers(router, handlers.r)(router)
 
     app = Application()
     app["bot"] = bot
@@ -63,7 +64,7 @@ def main():
     ).register(app, path=WEBHOOK_PATH)
     setup_application(app, dispatcher, bot=bot)
 
-    run_app(app, host=LOCALHOST, port=WEBAPP_PORT)
+    run_app(app, host=WEBAPP_HOST, port=WEBAPP_PORT)
 
 
 if __name__ == "__main__":

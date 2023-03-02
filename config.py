@@ -11,11 +11,15 @@ CHANNEL_ID = getenv('CHANNEL_ID')
 
 # webhook settings
 WEBHOOK_HOST = getenv('WEBHOOK_HOST')
-WEBHOOK_PATH = getenv('WEBHOOK_PATH')
-WEBHOOK_URL = WEBHOOK_HOST + WEBHOOK_PATH
+LOCALHOST = getenv('LOCALHOST')
+
+# WEBHOOK_PATH = getenv('WEBHOOK_PATH')
+WEBHOOK_PATH = f"/bot/{TOKEN}"
 
 # webserver settings
 WEBAPP_HOST = getenv('WEBAPP_HOST')
 WEBAPP_PORT = getenv('WEBAPP_PORT')
+
+WEBHOOK_URL = WEBAPP_HOST + WEBHOOK_PATH
 
 db = 'src/db/tg_markup.db'

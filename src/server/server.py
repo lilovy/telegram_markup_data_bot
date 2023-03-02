@@ -23,7 +23,7 @@ async def bot_webhook(update: dict):
     telegram_update = types.Update(**update)
     Dispatcher.set_current(dp)
     Bot.set_current(bot)
-    await dp.process_update(telegram_update)
+    await dp.feed_update(Bot, telegram_update)
 
 
 @app.on_event("shutdown")

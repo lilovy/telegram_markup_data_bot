@@ -16,7 +16,12 @@ from aiogram import (
     types, 
     F,
     )
-from ..server.handlers import handlers
+from ..server.handlers import (
+    handlers, 
+    tg_storage,
+    last_handler,
+    )
+from .handlers.FSM import fsm_save_data
 
 
 logging.basicConfig(level=logging.INFO)
@@ -49,7 +54,13 @@ def main():
 
     dispatcher = Dispatcher()
     dispatcher["webhook_url"] = WEBHOOK_URL
-    dispatcher.include_routers(router, handlers.router)
+    dispatcher.include_routers(
+        router, 
+        tg_storage.router,
+        fsm_save_data.router,
+        handlers.router, 
+        last_handler.router,
+        )
 
     app = Application()
     app["bot"] = bot

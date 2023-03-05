@@ -12,7 +12,14 @@ router = Router()
 
 @router.message(Command(commands=["start"]))
 async def welcome(msg: Message):
-    await msg.answer('salem')
+    await msg.answer(
+        'Hello!\n\n' \
+        'this bot will help you to manually markup\n' \
+        'data for neural network training\n\n' \
+        'to start markup /run\n\n' \
+        'for more information /help\n\n' \
+        'contact @trump for full access' \
+        )
 
 
 @router.message(Command(commands=['help']))

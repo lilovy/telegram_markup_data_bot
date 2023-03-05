@@ -1,10 +1,11 @@
-import logging
+import logging, asyncio
 from config import (
     TOKEN, 
     WEBAPP_PORT, 
     WEBHOOK_PATH, 
     WEBHOOK_URL, 
     LOCALHOST,
+    ACCESS_ID,
     )
 from aiohttp.web import run_app
 from aiohttp.web_app import Application
@@ -22,12 +23,16 @@ from ..server.handlers import (
     last_handler,
     )
 from .handlers.FSM import fsm_save_data
+from .middleware.access import Access
+
+from ..db.db_async import async_session
+from ..db.init_db import init_db
 
 
 logging.basicConfig(level=logging.INFO)
 
 router = Router()
-
+router.message.filter(F.chat.type == 'private')
 
 @router.startup()
 async def on_startup(bot: Bot, webhook_url: str):
@@ -51,16 +56,22 @@ async def on_shutdown(bot: Bot, dispatcher: Dispatcher):
 
 def main():
     bot = Bot(token=TOKEN, parse_mode="HTML")
+    
+    init_db()
 
     dispatcher = Dispatcher()
     dispatcher["webhook_url"] = WEBHOOK_URL
+    dispatcher['session_maker'] = async_session
+    
     dispatcher.include_routers(
         router, 
-        tg_storage.router,
-        fsm_save_data.router,
         handlers.router, 
+        fsm_save_data.router,
+        tg_storage.router,
         last_handler.router,
         )
+    dispatcher.message.middleware(Access(['/run']))
+    dispatcher.callback_query.middleware(Access(['/run', F.document, F.photo]))
 
     app = Application()
     app["bot"] = bot

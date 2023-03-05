@@ -70,7 +70,7 @@ def main():
         tg_storage.router,
         last_handler.router,
         )
-    dispatcher.message.middleware(Access(['/run']))
+    dispatcher.message.middleware(Access(['/run', F.document, F.photo]))
     dispatcher.callback_query.middleware(Access(['/run', F.document, F.photo]))
 
     app = Application()

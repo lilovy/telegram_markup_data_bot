@@ -85,7 +85,7 @@ class Access(BaseMiddleware):
 
         if user.permission in (Permission.user, Permission.admin):
             return await handler(event, data)
-        
+
         await event.answer(
             'Access denied.\n' \
             'contact @obama for access',

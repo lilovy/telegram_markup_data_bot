@@ -26,4 +26,4 @@ class File(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
-    channel_id: Mapped[int] = mapped_column(default=CHANNEL_ID)
+    channel_id: Mapped[int] = mapped_column(default=int(CHANNEL_ID))

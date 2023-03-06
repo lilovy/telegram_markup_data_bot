@@ -5,7 +5,9 @@ load_dotenv(find_dotenv())
 
 TOKEN = getenv('TOKEN')
 
-ACCESS_ID: list = list(map(int, getenv('ACCESS_ID').split()))
+ADMIN_ID = int(getenv('ADMIN_ID'))
+
+ACCESS_ID = list(map(int, getenv('ACCESS_ID').split()))
 
 CHANNEL_ID = getenv('CHANNEL_ID')
 

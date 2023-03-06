@@ -20,6 +20,13 @@ class SaveFile(StatesGroup):
     save_txt = State()
 
 
+@router.message(Command(commands=['cancel']))
+@router.message(F.text.casefold() == 'cancel')
+async def cancel_handler(msg: Message, state: FSMContext):
+    await state.clear()
+    await msg.answer('cancelled.')
+
+
 @router.message(Command(commands=['run']))
 async def start_save(msg: Message, state: FSMContext):
     await state.set_state(SaveFile.save_csv)
@@ -65,9 +72,3 @@ async def save_txt(msg: Message, state: FSMContext):
 async def save_txt_incorrectly(msg: Message):
     await msg.answer('Please, send txt file, or print /cancel for exit')
 
-
-@router.message(Command(commands=['cancel']))
-@router.message(F.text.casefold() == 'cancel')
-async def cancel_handler(msg: Message, state: FSMContext):
-    await state.clear()
-    await msg.answer('cancelled.')

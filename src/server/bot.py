@@ -5,6 +5,7 @@ from config import (
     WEBHOOK_PATH, 
     WEBHOOK_URL, 
     LOCALHOST,
+    ADMIN_ID,
     ACCESS_ID,
     )
 from aiohttp.web import run_app
@@ -21,6 +22,7 @@ from ..server.handlers import (
     handlers, 
     tg_storage,
     last_handler,
+    admin_handler,
     )
 from .handlers.FSM import fsm_save_data
 from .middleware.access import Access
@@ -56,22 +58,24 @@ async def on_shutdown(bot: Bot, dispatcher: Dispatcher):
 
 def main():
     bot = Bot(token=TOKEN, parse_mode="HTML")
-    
+
     init_db()
 
     dispatcher = Dispatcher()
     dispatcher["webhook_url"] = WEBHOOK_URL
     dispatcher['session_maker'] = async_session
-    
+
     dispatcher.include_routers(
         router, 
         handlers.router, 
         fsm_save_data.router,
+        admin_handler.router,
         tg_storage.router,
         last_handler.router,
         )
-    dispatcher.message.middleware(Access(['/run', F.document, F.photo]))
-    dispatcher.callback_query.middleware(Access(['/run', F.document, F.photo]))
+
+    dispatcher.message.middleware(Access())
+    dispatcher.callback_query.middleware(Access())
 
     app = Application()
     app["bot"] = bot

@@ -11,7 +11,10 @@ from aiogram.methods import (
     )
 
 from config import CHANNEL_ID
-from ..filters.unique_filename import UniqueFileName
+from src.server.filters.filters import (
+    UniqueFileName,
+    MIMEType,
+    )
 from ....db.action import (
     save_file_info,
     check_unique_file_name,
@@ -61,7 +64,11 @@ async def set_pjname_incorrectly(msg: Message, state: FSMContext):
         )
 
 
-@router.message(SaveFile.save_csv, F.document)
+@router.message(
+    SaveFile.save_csv, 
+    F.document,
+    MIMEType(),
+    )
 async def save_csv(msg: Message, state: FSMContext):
     await state.update_data(csv_file=msg.document.file_id)
     await msg.answer(
@@ -79,7 +86,11 @@ async def save_csv_incorrectly(msg: Message):
         )
 
 
-@router.message(SaveFile.save_txt, F.document)
+@router.message(
+    SaveFile.save_txt, 
+    F.document,
+    MIMEType(),
+    )
 async def save_txt(msg: Message, state: FSMContext):
     user_data = await state.get_data()
 
@@ -89,12 +100,7 @@ async def save_txt(msg: Message, state: FSMContext):
         chat_id=CHANNEL_ID,
         document=user_data['csv_file']
     )
-    # await forward_message.ForwardMessage(
-    #     chat_id=int(CHANNEL_ID),
-    #     from_chat_id=msg.chat.id,
-    #     message_id=user_data['csv_file'],
-    # )
-    
+
     await msg.answer('csv file saved')
 
     #save txt file on private channel
@@ -103,11 +109,7 @@ async def save_txt(msg: Message, state: FSMContext):
         chat_id=CHANNEL_ID,
         document=msg.document.file_id,
     )
-    # await forward_message.ForwardMessage(
-    #     chat_id=int(CHANNEL_ID),
-    #     from_chat_id=msg.chat.id,
-    #     message_id=msg.message_id,
-    # )
+
     await msg.answer('txt file saved')
     
     await save_file_info(

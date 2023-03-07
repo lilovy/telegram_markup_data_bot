@@ -1,22 +1,3 @@
-
-
-class AdminAccess:
-    permission = 'admin'
-    def __init__(self):
-        # super().__init__()
-        self.handlers = [
-            '/users'
-        ]
-
-
-class UserAccess(AdminAccess):
-    permission = 'user'
-    def __init__(self):
-        super().__init__()
-        self.handlers += [
-            '/run',
-        ]
-
 class AccessLevel:
     def __init__(self):
         self.handler: list
@@ -33,16 +14,6 @@ class AccessLevel:
         self.user
         self.handler += [
             '/run',
+            '/return',
         ]
         return self.handler
-
-
-# class GuestAccess:
-#     permission = 'guest'
-#     def __init__(self):
-#         self.handlers = [
-#             '/start',
-#             '/help',
-#             ]
-
-

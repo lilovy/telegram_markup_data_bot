@@ -23,6 +23,7 @@ from ..server.handlers import (
     tg_storage,
     last_handler,
     admin_handler,
+    get_file,
     )
 from .handlers.FSM import fsm_save_data
 from .middleware.access import Access
@@ -71,6 +72,7 @@ def main():
         fsm_save_data.router,
         admin_handler.router,
         tg_storage.router,
+        get_file.router,
         last_handler.router,
         )
 

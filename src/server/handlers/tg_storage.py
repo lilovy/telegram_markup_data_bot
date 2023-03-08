@@ -5,12 +5,14 @@ from aiogram.types import (
     CallbackQuery,
     InputMediaDocument,
     )
+from aiogram.enums import ParseMode
 from aiogram.methods import SendMessage
 from aiogram.filters import Command, Text
 from aiogram.methods import (
     forward_message,
     send_message,
     )
+
 from config import CHANNEL_ID
 from ...db.action import (
     get_user_filenames,
@@ -29,12 +31,14 @@ async def return_message(msg: Message):
     return all projects of this user
     """
     await msg.answer(
-        'Select a project',
+        "*Select a project*\ ",
         reply_markup=get_keyboard_files(
             filenames=await get_user_filenames(
                 user_id=msg.chat.id,
                 ),
+            callback_text='return'
             ).as_markup(),
+        parse_mode=ParseMode.MARKDOWN_V2
     )
 
 
@@ -54,9 +58,12 @@ async def send_user_file(callback: CallbackQuery):
         InputMediaDocument(media=files[0]),
         InputMediaDocument(media=files[1]),
     ]
-    
+    await callback.message.answer(
+        f"*Project '{filename}':*\ ",
+        parse_mode=ParseMode.MARKDOWN_V2)
     await callback.message.answer_media_group(
-        media=media_group)
+        media=media_group,
+        )
 
 
 

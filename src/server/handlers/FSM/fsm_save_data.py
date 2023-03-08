@@ -1,23 +1,20 @@
-import logging
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.methods import (
-    forward_message,
-    send_message,
     send_document,
     )
 
 from config import CHANNEL_ID
-from src.server.filters.filters import (
+from ...filters.filters import (
     UniqueFileName,
     MIMEType,
+    access_mime_type,
     )
 from ....db.action import (
     save_file_info,
-    check_unique_file_name,
     )
 
 router = Router()
@@ -67,7 +64,7 @@ async def set_pjname_incorrectly(msg: Message, state: FSMContext):
 @router.message(
     SaveFile.save_csv, 
     F.document,
-    MIMEType(),
+    MIMEType(mime_access=access_mime_type['data']),
     )
 async def save_csv(msg: Message, state: FSMContext):
     await state.update_data(csv_file=msg.document.file_id)
@@ -89,7 +86,7 @@ async def save_csv_incorrectly(msg: Message):
 @router.message(
     SaveFile.save_txt, 
     F.document,
-    MIMEType(),
+    MIMEType(mime_access=access_mime_type['categories']),
     )
 async def save_txt(msg: Message, state: FSMContext):
     user_data = await state.get_data()

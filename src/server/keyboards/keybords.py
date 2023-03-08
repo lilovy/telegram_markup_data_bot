@@ -1,18 +1,15 @@
 from aiogram.types import (
     InlineKeyboardButton,
-    KeyboardButton,
-    Message,
 )
 from aiogram.utils.keyboard import (
     ReplyKeyboardBuilder,
     InlineKeyboardBuilder
 )
 
-from ...db.models.async_models import File
-
 
 def get_keyboard_files(
     filenames: list[str],
+    callback_text: str,
 ) -> InlineKeyboardBuilder():
 
     builder = InlineKeyboardBuilder()
@@ -21,7 +18,7 @@ def get_keyboard_files(
         builder.add(
             InlineKeyboardButton(
                 text=filename,
-                callback_data=f'return_{filename}',
+                callback_data=f"{callback_text}_{filename}",
                 )
             )
 

@@ -29,6 +29,18 @@ class File(Base):
 
     id: Mapped[str] = mapped_column(primary_key=True)
     linked_id: Mapped[Optional[str]]
-    projectname: Mapped[str]
+    project_name: Mapped[str]
     user_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
     channel_id: Mapped[int] = mapped_column(default=int(CHANNEL_ID))
+
+
+class Result(Base):
+    __tablename__ = 'result'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
+    project_name: Mapped[str]
+    time_create: Mapped[datetime.datetime] = mapped_column(
+        server_default=func.now()
+    )
+    row_data: Mapped[str]

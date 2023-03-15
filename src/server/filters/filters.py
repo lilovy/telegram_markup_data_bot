@@ -9,8 +9,8 @@ from ...db.action import check_unique_file_name
 access_mime_type = {
     "data": [
         'text/csv', 
-        'application/json',
         'text/plain',
+        # 'application/json',
         # 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         # 'application/vnd.ms-excel',
     ],
@@ -36,7 +36,7 @@ class MIMEType(BaseFilter):
             return True
         else:
             await msg.answer(
-                'Please use (.csv, .txt, .json) for target file\n' \
+                'Please use (.csv, .txt) for target file\n' \
                 'and (.txt) for category file'
                 )
             return False

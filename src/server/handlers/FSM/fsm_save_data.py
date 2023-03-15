@@ -33,7 +33,7 @@ async def cancel_handler(msg: Message, state: FSMContext):
     await msg.answer('cancelled.')
 
 
-@router.message(Command(commands=['run']))
+@router.message(Command(commands=['create']))
 async def start_save(msg: Message, state: FSMContext):
     await state.set_state(SaveFile.project_name)
     await msg.answer('enter name for project')

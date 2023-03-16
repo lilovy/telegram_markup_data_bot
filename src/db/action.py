@@ -74,6 +74,22 @@ async def get_user_permission(
         raise e
 
 
+async def get_file_mimetype(
+    user_id: int,
+    project_name: str,
+    ) -> tuple[str, str]:
+    
+    async with async_session() as session:
+        session: AsyncSession
+        async with session.begin():
+            stmt = select(File).where(
+                File.user_id == user_id,
+                File.project_name == project_name,
+                )
+            result: File = await session.scalar(stmt)
+
+    return (result.mime_type_main, result.mime_type_second)
+
 
 async def check_unique_file_name(
     user_id: int,
@@ -123,7 +139,9 @@ async def save_file_info(
     user_id: int,
     name: str,
     id: int,
+    mime_type_main: str,
     linked_file_id: int,
+    mime_type_second: str,
     channel_id: int = CHANNEL_ID,
     ) -> None:
     try: 
@@ -134,7 +152,9 @@ async def save_file_info(
                     user_id=user_id,
                     project_name=name,
                     id=id,
+                    mime_type_main=mime_type_main,
                     linked_id=linked_file_id,
+                    mime_type_second=mime_type_second,
                     channel_id=channel_id,
                     )
                 await session.merge(file)

@@ -28,7 +28,9 @@ class File(Base):
     )
 
     id: Mapped[str] = mapped_column(primary_key=True)
+    mime_type_main: Mapped[str]
     linked_id: Mapped[Optional[str]]
+    mime_type_second: Mapped[Optional[str]]
     project_name: Mapped[str]
     user_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
     channel_id: Mapped[int] = mapped_column(default=int(CHANNEL_ID))

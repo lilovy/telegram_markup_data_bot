@@ -26,15 +26,6 @@ class SaveFile(StatesGroup):
     save_txt = State()
 
 
-
-def mimetype_to_type(mimetype: str) -> str:
-    default_mime_types = {
-            'text/plain': 'txt',
-            'text/csv': 'csv',
-        }
-    return default_mime_types[mimetype]
-
-
 @router.message(Command(commands=['cancel']))
 @router.message(F.text.casefold() == 'cancel')
 async def cancel_handler(msg: Message, state: FSMContext):
@@ -76,7 +67,10 @@ async def set_pjname_incorrectly(msg: Message, state: FSMContext):
     MIMEType(mime_access=access_mime_type['data']),
     )
 async def save_csv(msg: Message, state: FSMContext):
-    await state.update_data(csv_file=msg.document.file_id)
+    await state.update_data(
+        csv_file=msg.document.file_id,
+        mime_type_main=msg.document.mime_type,
+        )
     await msg.answer(
         'OK. Now add a txt file\n' \
         'with categories for markup'
@@ -121,8 +115,10 @@ async def save_txt(msg: Message, state: FSMContext):
     await save_file_info(
         user_id=msg.chat.id,
         name=user_data['name'], 
-        id=user_data['csv_file'], 
+        id=user_data['csv_file'],
+        mime_type_main=user_data['mime_type_main'],
         linked_file_id=msg.document.file_id,
+        mime_type_second=msg.document.mime_type,
         )
 
     state.clear()

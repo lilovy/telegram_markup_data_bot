@@ -29,6 +29,6 @@ WEBAPP_PORT = getenv('WEBAPP_PORT')
 WEBHOOK_URL = WEBAPP_HOST + WEBHOOK_PATH
 
 # relative path to database
-db_path = 'src/data/db/MarkupTG.db'
+db_path = 'src/data/db/MarkupBotTG.db'
 
 data_dir = 'src/data/project_file/'

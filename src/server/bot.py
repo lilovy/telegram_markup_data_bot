@@ -18,21 +18,25 @@ from aiogram import (
     types, 
     F,
     )
+from aiogram.enums import ParseMode
 from ..server.handlers import (
     handlers, 
     tg_storage,
     last_handler,
     admin_handler,
     get_file,
+    markup_handler,
     )
 from .handlers.FSM import fsm_save_data
 from .middleware.access import Access
 
 from ..db.db_async import async_session
 from ..db.init_db import init_db
+from .init import bot
 
 
 logging.basicConfig(level=logging.INFO)
+# bot = Bot(token=TOKEN, parse_mode=ParseMode.MARKDOWN_V2)
 
 router = Router()
 router.message.filter(F.chat.type == 'private')
@@ -58,7 +62,6 @@ async def on_shutdown(bot: Bot, dispatcher: Dispatcher):
 
 
 def main():
-    bot = Bot(token=TOKEN, parse_mode="HTML")
 
     init_db()
 
@@ -73,6 +76,7 @@ def main():
         admin_handler.router,
         tg_storage.router,
         get_file.router,
+        markup_handler.router,
         last_handler.router,
         )
 

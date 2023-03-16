@@ -31,7 +31,7 @@ async def return_message(msg: Message):
     return all projects of this user
     """
     await msg.answer(
-        "*Select a project*\ ",
+        text="*Select a project*\ ",
         reply_markup=get_keyboard_files(
             filenames=await get_user_filenames(
                 user_id=msg.chat.id,
@@ -50,12 +50,16 @@ async def send_user_file(callback: CallbackQuery):
     filename = callback.data.split('_')[1]
     files = await get_user_file(
         user_id=callback.message.chat.id,
-        projectname=filename,
+        project_name=filename,
         )
     
+    # media_group = [
+    #     InputMediaDocument(media=files[0]),
+    #     InputMediaDocument(media=files[1]),
+    # ]
     media_group = [
-        InputMediaDocument(media=files[0]),
-        InputMediaDocument(media=files[1]),
+        InputMediaDocument(media=file)
+        for file in files
     ]
     await callback.message.answer(
         f"*Project '{filename}':*\ ",

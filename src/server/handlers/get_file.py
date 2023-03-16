@@ -43,6 +43,6 @@ async def send_user_file(callback: CallbackQuery):
     filename = callback.data.split('_')[1]
     files = await get_user_file(
         user_id=callback.message.chat.id,
-        projectname=filename,
+        project_name=filename,
         )
     await callback.message.answer(bot.GetFile(chat_id=files[0]))

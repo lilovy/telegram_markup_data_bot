@@ -28,19 +28,21 @@ async def get_user_filenames(
     async with async_session() as session:
         session: AsyncSession
         async with session.begin():
-            stmt = select(File).where(File.user_id == user_id)
+            stmt = select(File).where(
+                File.user_id == user_id,
+                )
             result = await session.scalars(stmt)
         
     file_ids: list = []
     for f in result:
         f: File
-        file_ids.append(f.projectname)
+        file_ids.append(f.project_name)
 
     return file_ids
 
 async def get_user_file(
     user_id: int,
-    projectname: str,
+    project_name: str,
     ) -> tuple[str, str]:
     
     async with async_session() as session:
@@ -48,7 +50,7 @@ async def get_user_file(
         async with session.begin():
             stmt = select(File).where(
                 File.user_id == user_id,
-                File.projectname == projectname,
+                File.project_name == project_name,
                 )
             result: File = await session.scalar(stmt)
 
@@ -86,7 +88,10 @@ async def check_unique_file_name(
     async with async_session() as session:
         session: AsyncSession
         async with session.begin():
-            stmt = select(File).where(File.user_id == user_id, File.projectname == name)
+            stmt = select(File).where(
+                File.user_id == user_id, 
+                File.project_name == name,
+                )
             file: File = await session.scalar(stmt)
 
     if file:
@@ -127,7 +132,7 @@ async def save_file_info(
             async with session.begin():
                 file = File(
                     user_id=user_id,
-                    projectname=name,
+                    project_name=name,
                     id=id,
                     linked_id=linked_file_id,
                     channel_id=channel_id,

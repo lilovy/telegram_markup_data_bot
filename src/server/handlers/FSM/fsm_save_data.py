@@ -26,6 +26,15 @@ class SaveFile(StatesGroup):
     save_txt = State()
 
 
+
+def mimetype_to_type(mimetype: str) -> str:
+    default_mime_types = {
+            'text/plain': 'txt',
+            'text/csv': 'csv',
+        }
+    return default_mime_types[mimetype]
+
+
 @router.message(Command(commands=['cancel']))
 @router.message(F.text.casefold() == 'cancel')
 async def cancel_handler(msg: Message, state: FSMContext):
@@ -33,7 +42,7 @@ async def cancel_handler(msg: Message, state: FSMContext):
     await msg.answer('cancelled.')
 
 
-@router.message(Command(commands=['create']))
+@router.message(Command(commands=['add']))
 async def start_save(msg: Message, state: FSMContext):
     await state.set_state(SaveFile.project_name)
     await msg.answer('enter name for project')

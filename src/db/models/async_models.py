@@ -24,7 +24,7 @@ class User(Base):
 class File(Base):
     __tablename__ = 'file'
     __table_args__ = (
-        UniqueConstraint('projectname', 'user_id', name='project_name'),
+        UniqueConstraint('project_name', 'user_id', name='unique_project_name'),
     )
 
     id: Mapped[str] = mapped_column(primary_key=True)

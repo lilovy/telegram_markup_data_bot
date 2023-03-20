@@ -39,10 +39,13 @@ class File(Base):
 class Result(Base):
     __tablename__ = 'result'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(
+        primary_key=True, 
+        autoincrement=True,
+        )
     user_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
     project_name: Mapped[str]
     time_create: Mapped[datetime.datetime] = mapped_column(
-        server_default=func.now()
+        server_default=func.now(),
     )
     row_data: Mapped[str]

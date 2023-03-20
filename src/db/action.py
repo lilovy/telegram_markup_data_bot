@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncScalarResult,
 )
 from sqlalchemy.future import select
+from sqlalchemy import delete
 from .db_async import async_session
 from .models.async_models import User, File, RawData
 from config import CHANNEL_ID
@@ -200,6 +201,7 @@ async def save_file_data(
                         project_name=name,
                         data_row=row,
                         )
+                    session.d
                     rows.append(file)
                 session.add_all(rows)
                 session.commit()
@@ -225,3 +227,46 @@ async def update_file_data(
                 session.merge(file)
     except Exception as e:
         raise e
+
+
+async def del_file_data(
+    user_id: int,
+    project_name: str,
+) -> None:
+    try: 
+        async with async_session() as session:
+            session: AsyncSession
+            async with session.begin():
+                stmt = select(RawData).where(
+                    RawData.user_id == user_id,
+                    RawData.project_name == project_name,
+                    )
+                result = await session.scalars(stmt)
+                for row in result:
+                    await session.delete(row)
+                await session.commit()
+
+
+async def check_exist_data(
+    user_id: int,
+    project_name: str,
+    ) -> bool:
+    """
+    file exist check
+    
+    if row data exist -> return True
+    else -> return False
+    """
+    async with async_session() as session:
+        session: AsyncSession
+        async with session.begin():
+            stmt = select(RawData).where(
+                RawData.user_id == user_id, 
+                RawData.project_name == name,
+                )
+            file: RawData = await session.scalar(stmt)
+
+    if file:
+        return True
+    
+    return False

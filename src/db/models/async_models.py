@@ -1,7 +1,7 @@
 import asyncio, datetime
 from typing import Optional
 
-from sqlalchemy import func, ForeignKey, UniqueConstraint
+from sqlalchemy import func, ForeignKey, UniqueConstraint, Boolean
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
@@ -48,4 +48,20 @@ class Result(Base):
     time_create: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now(),
     )
-    row_data: Mapped[str]
+    raw_data: Mapped[str]
+
+
+class RawData(Base):
+    __tablename__ = 'raw_data'
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+        autoincrement=True,
+    )
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
+    project_name: Mapped[str]
+    data_row: Mapped[str]
+    status: Mapped[bool] = mapped_column(default=False)
+    time_create: Mapped[datetime.datetime] = mapped_column(
+        server_default=func.now(),
+    )

@@ -18,6 +18,7 @@ from ...db.action import (
     get_user_filenames,
     get_user_file,
     get_file_mimetype,
+    save_file_data
     )
 from ..keyboards.keybords import (
     get_keyboard_files,
@@ -74,10 +75,17 @@ async def run_select_project(callback: CallbackQuery):
     #         destination=destination,
     #         )
     # await callback.message.answer('download complete')
-    await download_select_project(callback)
+    data: dict = await download_select_project(callback)
+    async for item in data.items():
+        content = markup.return_record(item[0])
+        await save_file_data(
+            user_id=callback.message.chat.id,
+            project_name=item[1],
+            data=content,
+            )
 
 
-async def download_select_project(callback: CallbackQuery):
+async def download_select_project(callback: CallbackQuery) -> dict:
     project_name = callback.data.split("_")[1]
     files = await get_user_file(
         user_id=callback.message.chat.id,
@@ -88,14 +96,15 @@ async def download_select_project(callback: CallbackQuery):
         project_name=project_name,
         )
     
-    files_destination = []
+    files_destination = {}
     for i, file in enumerate(files):
         
         filename = f'{callback.message.chat.id}_{project_name}_{file}'
         res = await bot.get_file(file_id=file)
         f_type = mimetype_to_type(mimetype[i])
         destination = f'{DATA_DIR}{filename}.{f_type}'
-        files_destination.append(destination)
+        # files_destination.append(destination)
+        files_destination[destination] = filename
         
         if not checks.check_file_exists(destination):
             await bot.download(

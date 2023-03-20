@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.future import select
 from .db_async import async_session
-from .models.async_models import User, File
+from .models.async_models import User, File, RawData
 from config import CHANNEL_ID
 
 
@@ -91,6 +91,28 @@ async def get_file_mimetype(
     return (result.mime_type_main, result.mime_type_second)
 
 
+async def get_data_row(
+    user_id: int,
+    project_name: str
+    ) -> list[str]:
+    
+    async with async_session() as session:
+        session: AsyncSession
+        async with session.begin():
+            stmt = select(RawData).where(
+                RawData.user_id == user_id,
+                RawData.project_name == project_name,
+                RawData.status is not True,
+                )
+            result = await session.scalars(stmt)
+        
+    rows: list = []
+    for row in result:
+        row: RawData
+        # if not row.status:
+        rows.append(row.data_row)
+
+
 async def check_unique_file_name(
     user_id: int,
     name: str,
@@ -158,5 +180,48 @@ async def save_file_info(
                     channel_id=channel_id,
                     )
                 await session.merge(file)
+    except Exception as e:
+        raise e
+
+
+async def save_file_data(
+    user_id: int,
+    project_name: str,
+    data: list,
+) -> None:
+    try: 
+        async with async_session() as session: 
+            session: AsyncSession
+            async with session.begin():
+                rows = []
+                for row in data:
+                    file = RawData(
+                        user_id=user_id,
+                        project_name=name,
+                        data_row=row,
+                        )
+                    rows.append(file)
+                session.add_all(rows)
+                session.commit()
+    except Exception as e:
+        raise e
+
+
+async def update_file_data(
+    user_id: int,
+    project_name: str,
+    row: str,
+) -> None:
+    try: 
+        async with async_session() as session: 
+            session: AsyncSession
+            async with session.begin():
+                file = RawData(
+                    user_id=user_id,
+                    project_name=name,
+                    data_row=row,
+                    )
+                file.status = True
+                session.merge(file)
     except Exception as e:
         raise e

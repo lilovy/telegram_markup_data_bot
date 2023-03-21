@@ -45,10 +45,10 @@ class Result(Base):
         )
     user_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
     project_name: Mapped[str]
+    result_rows: Mapped[str]
     time_create: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now(),
     )
-    raw_data: Mapped[str]
 
 
 class RawData(Base):
@@ -61,6 +61,7 @@ class RawData(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
     project_name: Mapped[str]
     data_row: Mapped[str]
+    header: Mapped[bool] = mapped_column(default=False)
     status: Mapped[bool] = mapped_column(default=False)
     time_create: Mapped[datetime.datetime] = mapped_column(
         server_default=func.now(),

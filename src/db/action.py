@@ -127,11 +127,28 @@ async def get_data_row(
             stmt = select(RawData).where(
                 RawData.user_id == user_id,
                 RawData.project_name == project_name,
-                RawData.status is not True,
+                RawData.status is False,
+                RawData.header is False,
                 )
-            result = await session.scalar(stmt)
+            result = await session.scalars(stmt)
     row: RawData = result.first()
     return row.data_row
+
+
+async def get_header(
+    user_id: int,
+    project_name: str,
+) -> str:
+    async with async_session() as session:
+        session: AsyncSession
+        async with session.begin():
+            stmt = select(RawData).where(
+                RawData.user_id == user_id,
+                RawData.project_name == project_name,
+                RawData.header is True,
+            )
+            result: RawData = await session.scalar(stmt)
+    return result.data_row
 
 
 async def check_unique_file_name(
@@ -209,6 +226,7 @@ async def save_file_data(
     user_id: int,
     project_name: str,
     data: list,
+    header: bool = False,
 ) -> None:
     try: 
         async with async_session() as session: 
@@ -220,8 +238,9 @@ async def save_file_data(
                         user_id=user_id,
                         project_name=name,
                         data_row=row,
+                        header=header,
                         )
-                    session.d
+                    # session.d
                     rows.append(file)
                 session.add_all(rows)
                 session.commit()

@@ -13,9 +13,7 @@ from ...filters.filters import (
     MIMEType,
     access_mime_type,
     )
-from ....db.action import (
-    save_file_info,
-    )
+from ....db import action
 
 router = Router()
 
@@ -54,7 +52,7 @@ async def set_pj_name(msg: Message, name: str, state: FSMContext):
     await state.set_state(SaveFile.save_csv)
 
 @router.message(SaveFile.project_name)
-async def set_pjname_incorrectly(msg: Message, state: FSMContext):
+async def pjname_incorrectly(msg: Message, state: FSMContext):
     await msg.answer(
         'Please set project name\n' \
         'or print /cancel for exit'

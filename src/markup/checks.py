@@ -13,8 +13,3 @@ def check_file_exists(filepath: str) -> bool:
         return True
 
     return False
-
-def check_db_data_exist(
-    user_id: int,
-    project_name
-)

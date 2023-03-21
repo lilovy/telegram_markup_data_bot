@@ -14,16 +14,8 @@ from aiogram.methods import (
     )
 
 from config import CHANNEL_ID, DATA_DIR
-from ...db.action import (
-    get_user_filenames,
-    get_user_file,
-    get_file_mimetype,
-    save_file_data, 
-    check_exist_data,
-    )
-from ..keyboards.keybords import (
-    get_keyboard_files,
-    )
+from ...db import action
+from ..keyboards import keyboards
 from ...markup import markup, checks
 from ..init import bot
 
@@ -43,8 +35,8 @@ def mimetype_to_type(mimetype: str) -> str:
 async def start_project(msg: Message):
     await msg.answer(
         text="*Select a project*\ ",
-        reply_markup=get_keyboard_files(
-            filenames=await get_user_filenames(
+        reply_markup=keyboards.get_keyboard_files(
+            filenames=await action.get_user_filenames(
                 user_id=msg.chat.id,
                 ),
             callback_text='run',
@@ -59,7 +51,26 @@ async def run_select_project(callback: CallbackQuery):
     project_name = callback.data.split("_")[1]
     user_id = callback.message.chat.id
 
-    files = await get_user_file(
+    header, row = await preprocessing(
+        user_id=user_id,
+        project_name=project_name,
+    )
+    header: str
+    row: str
+
+    await callback.message.answer(row)
+
+
+async def postprocessing():
+    ...
+
+
+async def preprocessing(
+    user_id: int,
+    project_name: str,
+    ) -> tuple[str, str]:
+
+    files = await action.get_user_file(
         user_id=user_id,
         project_name=project_name,
         )
@@ -70,21 +81,18 @@ async def run_select_project(callback: CallbackQuery):
         files=files,
         )
 
-    # file = markup.get_files(file_id)
-    # # async for item in data.items():
-    # content = markup.return_content(file)
-    await markup.check_and_entry(
+    header = await markup.check_and_entry(
         user_id=user_id,
         project_name=project_name,
         file_id=files[0],
         )
-    
+
     row = await markup.return_row(
         user_id=user_id,
         project_name=project_name,
         )
-    
-    await callback.message.answer(row)
+
+    return await (header, row)
 
 
 async def download_select_project(
@@ -93,11 +101,7 @@ async def download_select_project(
     files: list,
     ) -> None:
 
-    # files = await get_user_file(
-    #     user_id=user_id,
-    #     project_name=project_name,
-    #     )
-    mimetype = await get_file_mimetype(
+    mimetype = await action.get_file_mimetype(
         user_id=user_id,
         project_name=project_name,
         )

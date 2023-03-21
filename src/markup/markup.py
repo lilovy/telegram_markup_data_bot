@@ -18,7 +18,7 @@ def return_content(filepath: str):
     return content
 
 
-def get_files(file_id: str) -> list:
+def get_file(file_id: str) -> list:
     files = GetFile(DATA_DIR).files
     for file in files:
         if file_id in file:
@@ -43,7 +43,7 @@ async def check_and_entry(
     project_name: str,
     file_id: str,
 ) -> None:
-    file = get_files(file_id)
+    file = get_file(file_id)
     data = return_content(file)
     if not await action.check_exist_data(
         user_id=user_id,
@@ -54,6 +54,8 @@ async def check_and_entry(
             project_name=project_name,
             data=data,
             )
+
+    return data[0]
 
         # await database_entry(
         #     user_id=user_id,
@@ -70,14 +72,18 @@ async def return_row(
         user_id=user_id,
         project_name=project_name,
         )
-    await action.update_file_data_status(
-        user_id=user_id,
-        project_name=project_name,
-        row=row,
-        )
+    # await action.update_file_data_status(
+    #     user_id=user_id,
+    #     project_name=project_name,
+    #     row=row,
+    #     )
+    return await row
 
 
-async def pretty_row(
+def pretty_row(
     row: str,
+    header: str,
 ) -> str:
-    pty_row = ParseData(row)
+    row_s = row.split()
+    header_s = header.split()
+    return list(zip(header_s, row_s))

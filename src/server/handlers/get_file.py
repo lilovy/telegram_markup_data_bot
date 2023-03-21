@@ -12,13 +12,8 @@ from aiogram.methods import (
     )
 from aiogram.client import bot
 
-from ..keyboards.keybords import (
-    get_keyboard_files,
-    )
-from ...db.action import (
-    get_user_filenames,
-    get_user_file,
-    )
+from ..keyboards import keyboards
+from ...db import action
 from ...db.models.async_models import File
 
 router = Router()
@@ -27,8 +22,8 @@ router = Router()
 async def get_file_info(msg: Message):
     await msg.answer(
         'Select a project',
-        reply_markup=get_keyboard_files(
-            filenames=await get_user_filenames(
+        reply_markup=keyboards.get_keyboard_files(
+            filenames=await action.get_user_filenames(
                 user_id=msg.chat.id,
                 ),
             callback_text='get'
@@ -41,7 +36,7 @@ async def send_user_file(callback: CallbackQuery):
     return data from telegram cloud storage
     """
     filename = callback.data.split('_')[1]
-    files = await get_user_file(
+    files = await action.get_user_file(
         user_id=callback.message.chat.id,
         project_name=filename,
         )

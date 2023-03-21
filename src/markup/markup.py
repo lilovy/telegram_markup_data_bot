@@ -55,7 +55,7 @@ async def check_and_entry(
             data=data,
             )
 
-    return data[0]
+    # return data[0]
 
         # await database_entry(
         #     user_id=user_id,

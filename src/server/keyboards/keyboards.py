@@ -1,5 +1,7 @@
 from aiogram.types import (
     InlineKeyboardButton,
+    ReplyKeyboardMarkup, 
+    KeyboardButton,
 )
 from aiogram.utils.keyboard import (
     ReplyKeyboardBuilder,
@@ -22,4 +24,30 @@ def get_keyboard_files(
                 )
             )
 
-    return builder
+    return builder.adjust(3)
+
+
+global_keyboard = ReplyKeyboardMarkup(
+    resize_keyboard=True,
+    keyboard=[
+        [
+            KeyboardButton(text='Start'),
+            KeyboardButton(text='Help'),
+        ],
+        [
+            KeyboardButton(text='Add project'),
+            KeyboardButton(text='Start markup'),
+            # KeyboardButton(text='Cancel'),
+        ],
+    ],
+)
+
+
+markup_keyboard = ReplyKeyboardMarkup(
+    resize_keyboard=True,
+    keyboard=[
+        [
+            # KeyboardButton(text=)
+        ]
+    ]
+)

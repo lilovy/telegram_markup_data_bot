@@ -6,6 +6,8 @@ from aiogram.types import (
     InputMediaDocument,
     )
 from aiogram.enums import ParseMode
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.methods import SendMessage
 from aiogram.filters import Command, Text
 from aiogram.methods import (
@@ -23,6 +25,11 @@ from ..init import bot
 router = Router()
 
 
+class MarkupData(StatesGroup):
+    stage1 = State()
+    stage2 = State()
+
+
 def mimetype_to_type(mimetype: str) -> str:
     default_mime_types = {
             'text/plain': 'txt',
@@ -32,6 +39,7 @@ def mimetype_to_type(mimetype: str) -> str:
 
 
 @router.message(Command(commands=['run']))
+@router.message(F.text.casefold() == 'start markup')
 async def start_project(msg: Message):
     await msg.answer(
         text="*Select a project*\ ",
@@ -46,19 +54,34 @@ async def start_project(msg: Message):
 
 
 @router.callback_query(Text(startswith='run_'))
-async def run_select_project(callback: CallbackQuery):
+async def run_select_project(
+    callback: CallbackQuery,
+    state: FSMContext,
+    ):
 
     project_name = callback.data.split("_")[1]
     user_id = callback.message.chat.id
 
-    header, row = await preprocessing(
+    await preprocessing(
         user_id=user_id,
         project_name=project_name,
     )
-    header: str
-    row: str
 
     await callback.message.answer(row)
+
+
+async def markup_data_handler(
+    msg: Message,
+    state: FSMContext,
+    ):
+    await state.set_state(MarkupData.stage1)
+
+
+
+@router.message(
+    MarkupData.stage1,
+    F.text
+)
 
 
 async def postprocessing():
@@ -81,18 +104,18 @@ async def preprocessing(
         files=files,
         )
 
-    header = await markup.check_and_entry(
+    await markup.check_and_entry(
         user_id=user_id,
         project_name=project_name,
         file_id=files[0],
         )
 
-    row = await markup.return_row(
-        user_id=user_id,
-        project_name=project_name,
-        )
+    # row = await markup.return_row(
+    #     user_id=user_id,
+    #     project_name=project_name,
+    #     )
 
-    return await (header, row)
+    # return await (header, row)
 
 
 async def download_select_project(

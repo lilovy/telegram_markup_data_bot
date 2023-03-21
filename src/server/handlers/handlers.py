@@ -11,6 +11,7 @@ from config import CHANNEL_ID
 router = Router()
 
 @router.message(Command(commands=["start"]))
+@router.message(F.text.casefold() == 'start')
 async def welcome(msg: Message):
     await msg.answer(
         'Hello!\n\n' \
@@ -23,5 +24,6 @@ async def welcome(msg: Message):
 
 
 @router.message(Command(commands=['help']))
+@router.message(F.text.casefold() == 'help')
 async def help(msg: Message):
     await msg.answer('bot for manual markup data')

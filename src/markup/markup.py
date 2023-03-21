@@ -42,9 +42,10 @@ async def check_and_entry(
     user_id:int,
     project_name: str,
     file_id: str,
+    limit: int = 100,
 ) -> None:
     file = get_file(file_id)
-    data = return_content(file)
+    data = return_content(file)[:limit]
     if not await action.check_exist_data(
         user_id=user_id,
         project_name=project_name,
@@ -54,14 +55,6 @@ async def check_and_entry(
             project_name=project_name,
             data=data,
             )
-
-    # return data[0]
-
-        # await database_entry(
-        #     user_id=user_id,
-        #     project_name=project_name, 
-        #     data=data,
-        #     )
 
 
 async def return_row(

@@ -6,6 +6,7 @@ from aiogram.methods import (
     forward_message,
     send_message,
     )
+from ..keyboards import keyboards
 from config import CHANNEL_ID
 
 router = Router()
@@ -19,7 +20,8 @@ async def welcome(msg: Message):
         'data for neural network training\n\n' \
         'to start markup /run\n\n' \
         'for more information /help\n\n' \
-        'contact @trump for full access' \
+        'contact @trump for full access',
+        reply_markup=keyboards.global_keyboard,
         )
 
 

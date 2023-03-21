@@ -3,7 +3,7 @@ from typing import Union, Dict, Any
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
 
-from ...db.action import check_unique_file_name
+from ...db import action
 
 
 access_mime_type = {
@@ -47,7 +47,7 @@ class UniqueFileName(BaseFilter):
         self,
         msg: Message,
         ) -> Union[bool, Dict[str, Any]]:
-        if await check_unique_file_name(
+        if await action.check_unique_file_name(
             user_id=msg.chat.id,
             name=msg.text,
             ):

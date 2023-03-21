@@ -19,6 +19,14 @@ from aiogram import (
     F,
     )
 from aiogram.enums import ParseMode
+
+from ..db.db_async import async_session
+from ..db.init_db import init_db
+from .init import bot
+
+from .handlers.FSM import fsm_save_data
+from .middleware.access import Access
+
 from ..server.handlers import (
     handlers, 
     tg_storage,
@@ -27,12 +35,6 @@ from ..server.handlers import (
     get_file,
     markup_handler,
     )
-from .handlers.FSM import fsm_save_data
-from .middleware.access import Access
-
-from ..db.db_async import async_session
-from ..db.init_db import init_db
-from .init import bot
 
 
 logging.basicConfig(level=logging.INFO)

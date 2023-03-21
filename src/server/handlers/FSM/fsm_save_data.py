@@ -8,12 +8,13 @@ from aiogram.methods import (
     )
 
 from config import CHANNEL_ID
+from ....db import action
+
 from ...filters.filters import (
     UniqueFileName,
     MIMEType,
     access_mime_type,
     )
-from ....db import action
 
 router = Router()
 
@@ -34,6 +35,7 @@ async def cancel_handler(msg: Message, state: FSMContext):
 @router.message(Command(commands=['add_project']))
 @router.message(F.text.casefold() == 'add project')
 async def start_save(msg: Message, state: FSMContext):
+    await state.clear()
     await state.set_state(SaveFile.project_name)
     await msg.answer('enter name for project')
     
@@ -94,24 +96,24 @@ async def save_txt(msg: Message, state: FSMContext):
     user_data = await state.get_data()
 
     #save csv file on private channel
-    await msg.answer('saving csv file...')
+    # await msg.answer('saving csv file...')
     await send_document.SendDocument(
         chat_id=CHANNEL_ID,
         document=user_data['csv_file']
     )
 
-    await msg.answer('csv file saved')
+    # await msg.answer('csv file saved')
 
     #save txt file on private channel
-    await msg.answer('saving txt file...')
+    # await msg.answer('saving txt file...')
     await send_document.SendDocument(
         chat_id=CHANNEL_ID,
         document=msg.document.file_id,
     )
 
-    await msg.answer('txt file saved')
-    
-    await save_file_info(
+    # await msg.answer('txt file saved')
+
+    await action.save_file_info(
         user_id=msg.chat.id,
         name=user_data['name'], 
         id=user_data['csv_file'],
@@ -120,7 +122,8 @@ async def save_txt(msg: Message, state: FSMContext):
         mime_type_second=msg.document.mime_type,
         )
 
-    state.clear()
+    await state.clear()
+    await msg.answer('files uploaded')
 
 
 @router.message(SaveFile.save_txt)

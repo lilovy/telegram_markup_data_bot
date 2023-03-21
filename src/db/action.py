@@ -161,19 +161,22 @@ async def check_unique_file_name(
     if the name is unique -> return True
     else -> return False
     """
-    async with async_session() as session:
-        session: AsyncSession
-        async with session.begin():
-            stmt = select(File).where(
-                File.user_id == user_id, 
-                File.project_name == name,
-                )
-            file: File = await session.scalar(stmt)
+    try:
+        async with async_session() as session:
+            session: AsyncSession
+            async with session.begin():
+                stmt = select(File).where(
+                    File.user_id == user_id, 
+                    File.project_name == name,
+                    )
+                file: File = await session.scalar(stmt)
 
-    if file:
-        return False
-    else:
-        return True
+        if file:
+            return False
+        else:
+            return True
+    except Exception as e:
+        raise e
 
 
 async def save_user(
@@ -234,16 +237,16 @@ async def save_file_data(
             async with session.begin():
                 rows = []
                 for row in data:
+                    
                     file = RawData(
                         user_id=user_id,
-                        project_name=name,
-                        data_row=row,
+                        project_name=project_name,
+                        data_row=row[0],
                         header=header,
                         )
-                    # session.d
                     rows.append(file)
                 session.add_all(rows)
-                session.commit()
+                # session.commit()
     except Exception as e:
         raise e
 
@@ -284,6 +287,8 @@ async def del_file_data(
                 for row in result:
                     await session.delete(row)
                 await session.commit()
+    except Exception as e:
+        raise e
 
 
 async def check_exist_data(
@@ -293,19 +298,22 @@ async def check_exist_data(
     """
     file exist check
     
-    if row data exist -> return True
+    if data exist -> return True
     else -> return False
     """
-    async with async_session() as session:
-        session: AsyncSession
-        async with session.begin():
-            stmt = select(RawData).where(
-                RawData.user_id == user_id, 
-                RawData.project_name == name,
-                )
-            file: RawData = await session.scalar(stmt)
+    try:
+        async with async_session() as session:
+            session: AsyncSession
+            async with session.begin():
+                stmt = select(RawData).where(
+                    RawData.user_id == user_id, 
+                    RawData.project_name == project_name,
+                    )
+                file: RawData = await session.scalar(stmt)
 
-    if file:
-        return True
-    
-    return False
+        if file:
+            return True
+        
+        return False
+    except Exception as e:
+        raise e

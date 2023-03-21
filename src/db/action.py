@@ -229,21 +229,27 @@ async def save_file_data(
     user_id: int,
     project_name: str,
     data: list,
-    header: bool = False,
+    # header: bool = False,
 ) -> None:
+
     try: 
         async with async_session() as session: 
             session: AsyncSession
             async with session.begin():
+
                 rows = []
-                for row in data:
-                    
+                for i, row in enumerate(data):
+                    header = False
+                    if i == 0:
+                        header = True
+
                     file = RawData(
                         user_id=user_id,
                         project_name=project_name,
                         data_row=row[0],
                         header=header,
                         )
+
                     rows.append(file)
                 session.add_all(rows)
                 # session.commit()

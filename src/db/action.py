@@ -92,11 +92,11 @@ async def get_file_mimetype(
     return (result.mime_type_main, result.mime_type_second)
 
 
-async def get_data_row(
+async def get_data_rows(
     user_id: int,
     project_name: str
     ) -> list[str]:
-    
+
     async with async_session() as session:
         session: AsyncSession
         async with session.begin():
@@ -107,11 +107,31 @@ async def get_data_row(
                 )
             result = await session.scalars(stmt)
         
-    rows: list = []
+    # rows: list = []
+    # rows = [row.data_row for row in result if row.status]
     for row in result:
         row: RawData
         # if not row.status:
         rows.append(row.data_row)
+    return rows
+
+
+async def get_data_row(
+    user_id: int,
+    project_name: str
+    ) -> str:
+
+    async with async_session() as session:
+        session: AsyncSession
+        async with session.begin():
+            stmt = select(RawData).where(
+                RawData.user_id == user_id,
+                RawData.project_name == project_name,
+                RawData.status is not True,
+                )
+            result = await session.scalar(stmt)
+    row: RawData = result.first()
+    return row.data_row
 
 
 async def check_unique_file_name(
@@ -209,7 +229,7 @@ async def save_file_data(
         raise e
 
 
-async def update_file_data(
+async def update_file_data_status(
     user_id: int,
     project_name: str,
     row: str,

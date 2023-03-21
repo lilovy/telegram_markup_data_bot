@@ -59,30 +59,44 @@ async def run_select_project(callback: CallbackQuery):
     project_name = callback.data.split("_")[1]
     user_id = callback.message.chat.id
 
-    await download_select_project(
+    files = await get_user_file(
         user_id=user_id,
         project_name=project_name,
         )
 
-    file = markup.get_files(file_id)
-    async for item in data.items():
-        content = markup.return_content(item[0])
-        markup.check_and_entry(
-            user_id=user_id,
-            project_name=item[1],
-            data=content,
-            )
+    await download_select_project(
+        user_id=user_id,
+        project_name=project_name,
+        files=files,
+        )
+
+    # file = markup.get_files(file_id)
+    # # async for item in data.items():
+    # content = markup.return_content(file)
+    await markup.check_and_entry(
+        user_id=user_id,
+        project_name=project_name,
+        file_id=files[0],
+        )
+    
+    row = await markup.return_row(
+        user_id=user_id,
+        project_name=project_name,
+        )
+    
+    await callback.message.answer(row)
 
 
 async def download_select_project(
     user_id: int,
     project_name: str,
-    ) -> dict:
+    files: list,
+    ) -> None:
 
-    files = await get_user_file(
-        user_id=user_id,
-        project_name=project_name,
-        )
+    # files = await get_user_file(
+    #     user_id=user_id,
+    #     project_name=project_name,
+    #     )
     mimetype = await get_file_mimetype(
         user_id=user_id,
         project_name=project_name,

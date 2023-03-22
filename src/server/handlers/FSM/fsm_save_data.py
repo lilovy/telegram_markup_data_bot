@@ -123,7 +123,10 @@ async def save_txt(msg: Message, state: FSMContext):
         )
 
     await state.clear()
-    await msg.answer('files uploaded')
+    await msg.answer(
+        'Project added' \
+        'Now you can start marking up'
+        )
 
 
 @router.message(SaveFile.save_txt)

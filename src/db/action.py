@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.future import select
 from sqlalchemy import delete
 from .db_async import async_session
-from .models.async_models import User, File, RawData
+from .models.async_models import User, File, Data
 from config import CHANNEL_ID
 
 
@@ -100,19 +100,20 @@ async def get_data_rows(
     async with async_session() as session:
         session: AsyncSession
         async with session.begin():
-            stmt = select(RawData).where(
-                RawData.user_id == user_id,
-                RawData.project_name == project_name,
-                RawData.status is not True,
-                )
+            stmt = select(Data).where(
+                Data.user_id == user_id,
+                Data.project_name == project_name,
+                Data.tags is None,
+                ).order_by(
+                    Data.time_create)
             result = await session.scalars(stmt)
         
-    # rows: list = []
+    rows: list = []
     # rows = [row.data_row for row in result if row.status]
     for row in result:
-        row: RawData
+        row: Data
         # if not row.status:
-        rows.append(row.data_row)
+        rows.append(row.rows)
     return rows
 
 
@@ -124,15 +125,20 @@ async def get_data_row(
     async with async_session() as session:
         session: AsyncSession
         async with session.begin():
-            stmt = select(RawData).where(
-                RawData.user_id == user_id,
-                RawData.project_name == project_name,
-                RawData.status is False,
-                RawData.header is False,
+            stmt = select(Data).where(
+                Data.user_id == user_id,
+                Data.project_name == project_name,
+                Data.tags == None,
+                Data.header == False,
+                ).order_by(
+                    Data.time_create,
                 )
             result = await session.scalars(stmt)
-    row: RawData = result.first()
-    return row.data_row
+
+    row: Data = result.first()
+    if row:
+        return row.rows
+    return
 
 
 async def get_header(
@@ -142,13 +148,13 @@ async def get_header(
     async with async_session() as session:
         session: AsyncSession
         async with session.begin():
-            stmt = select(RawData).where(
-                RawData.user_id == user_id,
-                RawData.project_name == project_name,
-                RawData.header is True,
+            stmt = select(Data).where(
+                Data.user_id == user_id,
+                Data.project_name == project_name,
+                Data.header == True,
             )
-            result: RawData = await session.scalar(stmt)
-    return result.data_row
+            result: Data = await session.scalar(stmt)
+    return result.rows
 
 
 async def check_unique_file_name(
@@ -240,14 +246,17 @@ async def save_file_data(
                 rows = []
                 for i, row in enumerate(data):
                     header = False
+                    header_tag = None
                     if i == 0:
                         header = True
+                        header_tag = 'marked_column'
 
-                    file = RawData(
+                    file = Data(
                         user_id=user_id,
                         project_name=project_name,
-                        data_row=row[0],
+                        rows=row[0],
                         header=header,
+                        tags=header_tag,
                         )
 
                     rows.append(file)
@@ -257,22 +266,50 @@ async def save_file_data(
         raise e
 
 
-async def update_file_data_status(
+# async def update_file_data_status(
+#     user_id: int,
+#     project_name: str,
+#     row: str,
+# ) -> None:
+#     try: 
+#         async with async_session() as session: 
+#             session: AsyncSession
+#             async with session.begin():
+#                 file = Data(
+#                     user_id=user_id,
+#                     project_name=name,
+#                     data_row=row,
+#                     )
+#                 file.status = True
+#                 session.merge(file)
+#     except Exception as e:
+#         raise e
+
+
+async def add_data_tags(
     user_id: int,
     project_name: str,
     row: str,
+    tags: str,
 ) -> None:
     try: 
         async with async_session() as session: 
             session: AsyncSession
             async with session.begin():
-                file = RawData(
-                    user_id=user_id,
-                    project_name=name,
-                    data_row=row,
-                    )
-                file.status = True
-                session.merge(file)
+                # file = Data(
+                #     user_id=user_id,
+                #     project_name=project_name,
+                #     rows=row,
+                #     )
+                stmt = select(Data).where(
+                    Data.user_id == user_id,
+                    Data.project_name == project_name,
+                    Data.rows == row,
+                )
+                
+                result: Data = await session.scalar(stmt)
+                result.tags = tags
+                await session.merge(result)
     except Exception as e:
         raise e
 
@@ -285,9 +322,9 @@ async def del_file_data(
         async with async_session() as session:
             session: AsyncSession
             async with session.begin():
-                stmt = select(RawData).where(
-                    RawData.user_id == user_id,
-                    RawData.project_name == project_name,
+                stmt = select(Data).where(
+                    Data.user_id == user_id,
+                    Data.project_name == project_name,
                     )
                 result = await session.scalars(stmt)
                 for row in result:
@@ -311,11 +348,11 @@ async def check_exist_data(
         async with async_session() as session:
             session: AsyncSession
             async with session.begin():
-                stmt = select(RawData).where(
-                    RawData.user_id == user_id, 
-                    RawData.project_name == project_name,
+                stmt = select(Data).where(
+                    Data.user_id == user_id, 
+                    Data.project_name == project_name,
                     )
-                file: RawData = await session.scalar(stmt)
+                file: Data = await session.scalar(stmt)
 
         if file:
             return True

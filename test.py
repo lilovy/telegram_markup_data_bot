@@ -1,13 +1,14 @@
-from src.db.action import (
-    check_unique_file_name,
-    get_user_info,
-    get_user_files
-    )
+from src.db import action
 import asyncio
 
 
 async def run():
-    print(await get_user_files(user_id=653053151))
+    print(
+        await action.get_data_row(
+            user_id=653053151,
+            project_name='first',
+            )
+        )
 
 
 asyncio.run(run())

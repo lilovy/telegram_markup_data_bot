@@ -1,6 +1,7 @@
 from markupdata import GetFile, OpenFile, ParseData, SaveDoc, Create
 from config import DATA_DIR
 from ..db import action
+import re
 
 
 def create_record(
@@ -9,6 +10,15 @@ def create_record(
     ) -> None:
     save = SaveDoc(filepath)
     save.write(record)
+
+
+def create_records(
+    filepath: str,
+    records: list,
+    ) -> None:
+    save = SaveDoc(filepath)
+    for record in records:
+        save.write(record)
 
 
 def return_content(filepath: str):
@@ -26,16 +36,10 @@ def get_file(file_id: str) -> list:
     return None
 
 
-# async def database_entry(
-#     user_id: int,
-#     project_name: str,
-#     data: list,
-# ):
-#     await action.save_file_data(
-#         user_id=user_id,
-#         project_name=project_name,
-#         data=data,
-#         )
+def get_user_tags(file_id: str) -> list:
+    filepath = get_file(file_id)
+
+    return return_content(filepath)
 
 
 async def check_and_entry(
@@ -44,6 +48,16 @@ async def check_and_entry(
     file_id: str,
     limit: int = 100,
 ) -> None:
+    """
+    fill data to db
+    
+    Keyword arguments:
+    user_id -- user identifier
+    project_name -- name of project
+    file_id -- file identifier
+    limit -- download restriction
+    """
+    
     file = get_file(file_id)
     data = return_content(file)[:limit]
     if not await action.check_exist_data(
@@ -65,18 +79,19 @@ async def return_row(
         user_id=user_id,
         project_name=project_name,
         )
-    # await action.update_file_data_status(
-    #     user_id=user_id,
-    #     project_name=project_name,
-    #     row=row,
-    #     )
+
     return await row
 
 
 def pretty_row(
-    row: str,
     header: str,
+    row: str,
 ) -> str:
-    row_s = row.split()
-    header_s = header.split()
-    return list(zip(header_s, row_s))
+    sep = re.findall(r'[^\w\s]+', row)[0]
+    row_s = row.split(sep=sep)
+    header_s = header.split(sep=sep)
+    pretty_list = list(zip(header_s, row_s))
+
+    pretty_str = '\n'.join(f"{key}: {value}" for key, value in pretty_list)
+    return pretty_str
+

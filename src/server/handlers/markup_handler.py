@@ -1,3 +1,4 @@
+import re
 from aiogram import Router, F
 from aiogram.types import (
     Message,
@@ -26,7 +27,7 @@ router = Router()
 
 
 class MarkupData(StatesGroup):
-    stage1 = State()
+    get_row = State()
     stage2 = State()
 
 
@@ -58,6 +59,8 @@ async def run_select_project(
     callback: CallbackQuery,
     state: FSMContext,
     ):
+    await callback.message.delete()
+    # await callback.message.answer('markup has begun')
 
     project_name = callback.data.split("_")[1]
     user_id = callback.message.chat.id
@@ -67,31 +70,130 @@ async def run_select_project(
         project_name=project_name,
     )
 
-    await callback.message.answer('do something')
+    await markup_data_row(
+        msg=callback.message,
+        state=state,
+        user_id=user_id,
+        project_name=project_name,
+        )
 
 
-async def markup_data_handler(
+async def markup_data_row(
     msg: Message,
     state: FSMContext,
+    user_id: int,
+    project_name: str,
+):
+    await state.clear()
+    await state.set_state(MarkupData.get_row)
+
+    row = await action.get_data_row(
+        user_id=user_id,
+        project_name=project_name,
+        )
+    
+    if row:
+        header = await action.get_header(
+            user_id=user_id,
+            project_name=project_name,
+            )
+        await state.update_data(
+            user_id=user_id,
+            project_name=project_name,
+            row=row,
+            tags='',
+            )
+
+
+        pretty_row = markup.pretty_row(
+            row=row,
+            header=header,
+            )
+        files_id = await action.get_user_file(
+            user_id=user_id,
+            project_name=project_name,
+            )
+
+        text = '*Select the desired tags*\ \n\n' + pretty_row
+
+        await msg.answer(
+            text=text,
+            reply_markup=keyboards.get_keyboard_tags(
+                tags=markup.get_user_tags(files_id[1]),
+                ).as_markup(),
+            parse_mode=ParseMode.MARKDOWN_V2,
+            )
+    
+    else:
+        await msg.answer('Marking complete!')
+
+
+@router.callback_query(Text(startswith='TagsMarker_'))
+async def send_user_file(
+    callback: CallbackQuery, 
+    state: FSMContext,
     ):
-    await state.set_state(MarkupData.stage1)
+
+    tag = callback.data.split("___")[1]
+
+    state_data = await state.get_data()
+    row = state_data['row']
+
+    # sep = re.findall(r'[^\w\s]+', row)[0]
+    tags: str = tag + ',' + state_data['tags']
+
+    await state.update_data(tags=tags)
 
 
+@router.callback_query(Text('cancel_tags_markup'))
+async def send_user_file(
+    callback: CallbackQuery, 
+    state: FSMContext,
+    ):
 
-@router.message(
-    MarkupData.stage1,
-    F.text
-)
+    await callback.message.delete()
+    await state.clear()
+    await callback.message.answer('Canceled')
 
 
-async def postprocessing():
-    ...
+@router.callback_query(Text('confirm_and_next'))
+async def send_user_file(
+    callback: CallbackQuery, 
+    state: FSMContext,
+    ):
+
+    await callback.message.delete()
+    state_data = await state.get_data()
+
+    user_id: int = state_data['user_id']
+    project_name: str = state_data['project_name']
+    tags: str = f"'{state_data['tags']}'"
+    row: str = state_data['row']
+
+    if tags != "''":
+        await action.add_data_tags(
+            user_id=user_id,
+            project_name=project_name,
+            row=row,
+            tags=tags,
+            )
+
+        await markup_data_row(
+            msg=callback.message,
+            state=state,
+            user_id=user_id,
+            project_name=project_name,
+            )
+    
+    await state.clear()
+
+    await callback.answer('tags added', cache_time=2)
 
 
 async def preprocessing(
     user_id: int,
     project_name: str,
-    ) -> tuple[str, str]:
+    ) -> None:
 
     files = await action.get_user_file(
         user_id=user_id,

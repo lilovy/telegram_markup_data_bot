@@ -152,3 +152,4 @@ cython_debug/
 #.idea/
 src/db/tg_markup.db
 src/data/project_file/
+test.py

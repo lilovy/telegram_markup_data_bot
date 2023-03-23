@@ -63,12 +63,31 @@ def get_keyboard_tags(
     return builder.adjust(3)
 
 
+def get_keyboard_result(
+    projects: list[str],
+    callback_text: str,
+) -> InlineKeyboardBuilder():
+
+    builder = InlineKeyboardBuilder()
+
+    for project in projects:
+        builder.add(
+            InlineKeyboardButton(
+                text=project,
+                callback_data=f"{callback_text}___{project}",
+                )
+            )
+
+    return builder.adjust(3)
+
+
 global_keyboard = ReplyKeyboardMarkup(
     resize_keyboard=True,
     keyboard=[
         [
             KeyboardButton(text='Start'),
             KeyboardButton(text='Help'),
+            KeyboardButton(text='Get response'),
         ],
         [
             KeyboardButton(text='Add project'),

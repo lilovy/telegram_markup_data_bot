@@ -1,12 +1,15 @@
+import re
 from sqlalchemy.ext.asyncio import (
     AsyncSession, 
     AsyncScalarResult,
 )
 from sqlalchemy.future import select
 from sqlalchemy import delete
+from sqlalchemy.engine import ScalarResult
 from .db_async import async_session
-from .models.async_models import User, File, Data
+from .models.async_models import User, File, Data, Result
 from config import CHANNEL_ID
+from .db_async import Base
 
 
 async def get_user_info(
@@ -157,6 +160,47 @@ async def get_header(
     return result.rows
 
 
+async def get_result_filename(
+    user_id: int,
+    project_name: str,
+) -> str:
+    async with async_session() as session:
+        session: AsyncSession
+        async with session.begin():
+            stmt = select(Result).where(
+                Result.user_id == user_id,
+                Result.project_name == project_name,
+            )
+            result: Result = await session.scalar(stmt)
+    return result.file_name
+
+
+async def get_marked_data(
+    user_id: int,
+    project_name: str,
+) -> list:
+    async with async_session() as session:
+        session: AsyncSession
+        async with session.begin():
+            stmt = select(Data).where(
+                Data.user_id == user_id,
+                Data.project_name == project_name,
+                # Data.header == True,
+            ).order_by(Data.time_create)
+            result: ScalarResult[Data] = await session.scalars(stmt)
+        
+    rows = []
+    
+    for row in result:
+        print(row.rows)
+        raw_row = row.rows
+        sep = re.findall(r'[^\w\s]+', raw_row)[0]
+        res = raw_row + sep + row.tags + '\n'
+        rows.append(res)
+    
+    return rows
+
+
 async def check_unique_file_name(
     user_id: int,
     name: str,
@@ -227,6 +271,26 @@ async def save_file_info(
                     channel_id=channel_id,
                     )
                 await session.merge(file)
+    except Exception as e:
+        raise e
+
+
+async def save_result_filename(
+    user_id: int,
+    project_name: str,
+    filename: str,
+    ) -> None:
+    try:
+        async with async_session() as session:
+            session: AsyncSession
+            async with session.begin():
+                file_name = Result(
+                    user_id=user_id,
+                    project_name=project_name,
+                    file_name=filename,
+                )
+                await session.merge(file_name)
+        # return user
     except Exception as e:
         raise e
 
@@ -337,6 +401,7 @@ async def del_file_data(
 async def check_exist_data(
     user_id: int,
     project_name: str,
+    table: Base = Data
     ) -> bool:
     """
     file exist check
@@ -348,11 +413,11 @@ async def check_exist_data(
         async with async_session() as session:
             session: AsyncSession
             async with session.begin():
-                stmt = select(Data).where(
-                    Data.user_id == user_id, 
-                    Data.project_name == project_name,
+                stmt = select(table).where(
+                    table.user_id == user_id, 
+                    table.project_name == project_name,
                     )
-                file: Data = await session.scalar(stmt)
+                file: table = await session.scalar(stmt)
 
         if file:
             return True

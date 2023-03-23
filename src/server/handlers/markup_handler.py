@@ -2,21 +2,14 @@ import re
 from aiogram import Router, F
 from aiogram.types import (
     Message,
-    ContentType,
     CallbackQuery,
-    InputMediaDocument,
     )
 from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.methods import SendMessage
 from aiogram.filters import Command, Text
-from aiogram.methods import (
-    forward_message,
-    send_message,
-    )
 
-from config import CHANNEL_ID, DATA_DIR
+from config import DATA_DIR
 from ...db import action
 from ..keyboards import keyboards
 from ...markup import markup, checks
@@ -28,7 +21,7 @@ router = Router()
 
 class MarkupData(StatesGroup):
     get_row = State()
-    stage2 = State()
+    # stage2 = State()
 
 
 def mimetype_to_type(mimetype: str) -> str:

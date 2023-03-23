@@ -1,4 +1,3 @@
-import logging
 from aiogram import Router, F
 from aiogram.filters import Command, Text
 from aiogram.types import Message, CallbackQuery

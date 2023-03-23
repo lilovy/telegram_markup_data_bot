@@ -1,7 +1,11 @@
+import os
+import re
 from markupdata import GetFile, OpenFile, ParseData, SaveDoc, Create
 from config import DATA_DIR
 from ..db import action
-import re
+from ..db.models.async_models import Result
+from . import checks
+import gzip
 
 
 def create_record(
@@ -94,4 +98,57 @@ def pretty_row(
 
     pretty_str = '\n'.join(f"{key}: {value}" for key, value in pretty_list)
     return pretty_str
+
+
+def zip_result(
+    filepath: str,
+    data: list,
+    ) -> None:
+    with gzip.open(filepath, 'wt') as f:
+        f.writelines(data)
+
+
+async def report_generator(
+    user_id: int,
+    project_name: str,
+    ) -> str:
+
+    result_filename = f'{user_id}_{project_name}_marked.csv.gz'
+
+    if not await action.check_exist_data(
+        user_id=user_id,
+        project_name=project_name,
+        table=Result,
+        ):
+
+        await action.save_result_filename(
+            user_id=user_id,
+            project_name=project_name,
+            filename=result_filename,
+            )
+
+    filepath = DATA_DIR + result_filename
+    try:
+        os.remove(filepath)
+    except FileNotFoundError:
+        print(f'File: {result_filename} not found')
+    except Exception as e:
+        print(e)
+
+    result_data = await action.get_marked_data(
+        user_id=user_id,
+        project_name=project_name,
+        )
+
+    zip_result(
+        filepath=filepath,
+        data=result_data,
+        )
+
+    return filepath
+
+    # create_records(
+    #     filepath=result_filename, 
+    #     records=result_data,
+    #     )
 

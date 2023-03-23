@@ -34,6 +34,7 @@ from ..server.handlers import (
     admin_handler,
     get_file,
     markup_handler,
+    generate_response,
     )
 
 
@@ -79,6 +80,7 @@ def main():
         tg_storage.router,
         get_file.router,
         markup_handler.router,
+        generate_response.router,
         last_handler.router,
         )
 

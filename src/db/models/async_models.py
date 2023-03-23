@@ -36,19 +36,19 @@ class File(Base):
     channel_id: Mapped[int] = mapped_column(default=int(CHANNEL_ID))
 
 
-# class Result(Base):
-#     __tablename__ = 'result'
+class Result(Base):
+    __tablename__ = 'result'
 
-#     id: Mapped[int] = mapped_column(
-#         primary_key=True, 
-#         autoincrement=True,
-#         )
-#     user_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
-#     project_name: Mapped[str]
-#     result_rows: Mapped[str]
-#     time_create: Mapped[datetime.datetime] = mapped_column(
-#         server_default=func.now(),
-#     )
+    id: Mapped[int] = mapped_column(
+        primary_key=True, 
+        autoincrement=True,
+        )
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
+    project_name: Mapped[str]
+    file_name: Mapped[str] = mapped_column(unique=True)
+    time_create: Mapped[datetime.datetime] = mapped_column(
+        server_default=func.now(),
+    )
 
 
 # class RawData(Base):

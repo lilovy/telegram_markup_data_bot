@@ -113,7 +113,7 @@ async def report_generator(
     project_name: str,
     ) -> str:
 
-    result_filename = f'{user_id}_{project_name}_marked.csv.gz'
+    result_filename = f'{user_id}_{project_name}_marked.csv.gzip'
 
     if not await action.check_exist_data(
         user_id=user_id,

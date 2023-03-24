@@ -49,8 +49,13 @@ async def set_pj_name(msg: Message, name: str, state: FSMContext):
     name = name.replace(' ', '_')
     await state.update_data(name=name)
     await msg.answer(
-        'Send a csv document\n' \
-        'with the target data\n'
+        'If source file less 20 mb\n' \
+        'You can upload raw csv.\n' \
+        'Otherwise, first compress the file to gzip\n' \
+        'And send the resulting archive' 
+        # 'Send a csv document\n' \
+        # 'with the target data\n'
+        # 'or print /cancel for exit'
         )
     await state.set_state(SaveFile.save_csv)
 
@@ -82,7 +87,10 @@ async def save_csv(msg: Message, state: FSMContext):
 @router.message(SaveFile.save_csv)
 async def save_csv_incorrectly(msg: Message):
     await msg.answer(
-        'Please, send csv file\n' \
+        'If source file < 20 mb\n' \
+        'You can upload raw csv.\n' \
+        'Otherwise, first compress the file to gzip\n' \
+        # 'Please, send csv file\n' \
         'or print /cancel for exit'
         )
 
@@ -124,8 +132,10 @@ async def save_txt(msg: Message, state: FSMContext):
 
     await state.clear()
     await msg.answer(
-        'Project added' \
-        'Now you can start marking up'
+        'Great!\n' \
+        'Project added\n' \
+        'Now you can start marking up\n' \
+        'To begin /start_markup'
         )
 
 

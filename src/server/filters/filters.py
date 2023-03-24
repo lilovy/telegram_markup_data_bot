@@ -10,6 +10,8 @@ access_mime_type = {
     "data": [
         'text/csv', 
         'text/plain',
+        'application/gzip',
+        'application/x-gzip',
         # 'application/json',
         # 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         # 'application/vnd.ms-excel',

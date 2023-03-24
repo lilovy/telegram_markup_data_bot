@@ -28,11 +28,12 @@ def mimetype_to_type(mimetype: str) -> str:
     default_mime_types = {
             'text/plain': 'txt',
             'text/csv': 'csv',
+            'application/gzip': 'gz'
         }
     return default_mime_types[mimetype]
 
 
-@router.message(Command(commands=['run']))
+@router.message(Command(commands=['start_markup']))
 @router.message(F.text.casefold() == 'start markup')
 async def start_project(msg: Message):
     await msg.answer(
@@ -47,6 +48,8 @@ async def start_project(msg: Message):
     )
 
 
+
+
 @router.callback_query(Text(startswith='run_'))
 async def run_select_project(
     callback: CallbackQuery,
@@ -55,7 +58,7 @@ async def run_select_project(
     await callback.message.delete()
     # await callback.message.answer('markup has begun')
 
-    project_name = callback.data.split("_")[1]
+    project_name = callback.data.split("___")[1]
     user_id = callback.message.chat.id
 
     await preprocessing(
@@ -221,13 +224,13 @@ async def download_select_project(
     for i, file in enumerate(files):
         
         filename = f'{user_id}_{project_name}_{file}'
-        res = await bot.get_file(file_id=file)
+        # res = await bot.get_file(file_id=file)
         f_type = mimetype_to_type(mimetype[i])
         destination = f'{DATA_DIR}{filename}.{f_type}'
 
         if not checks.check_file_exists(destination):
             await bot.download(
-                file=res,
+                file=file,
                 destination=destination,
                 )
 

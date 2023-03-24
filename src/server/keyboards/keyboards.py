@@ -20,9 +20,16 @@ def get_keyboard_files(
         builder.add(
             InlineKeyboardButton(
                 text=filename,
-                callback_data=f"{callback_text}_{filename}",
+                callback_data=f"{callback_text}___{filename}",
                 )
             )
+
+    builder.add(
+        InlineKeyboardButton(
+            text='Exit',
+            callback_data='exit_from_files_keyboard'
+        )
+    )
 
     return builder.adjust(3)
 
@@ -78,6 +85,13 @@ def get_keyboard_result(
                 )
             )
 
+    builder.add(
+        InlineKeyboardButton(
+            text='Exit',
+            callback_data='exit_from_files_keyboard'
+        )
+    )
+
     return builder.adjust(3)
 
 
@@ -92,17 +106,18 @@ global_keyboard = ReplyKeyboardMarkup(
         [
             KeyboardButton(text='Add project'),
             KeyboardButton(text='Start markup'),
+            KeyboardButton(text='Cancel'),
             # KeyboardButton(text='Cancel'),
         ],
     ],
 )
 
 
-markup_keyboard = ReplyKeyboardMarkup(
-    resize_keyboard=True,
-    keyboard=[
-        [
-            # KeyboardButton(text=)
-        ]
-    ]
-)
+# markup_keyboard = ReplyKeyboardMarkup(
+#     resize_keyboard=True,
+#     keyboard=[
+#         [
+#             # KeyboardButton(text=)
+#         ]
+#     ]
+# )

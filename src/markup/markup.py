@@ -1,11 +1,22 @@
 import os
 import re
+from typing import Union
 from markupdata import GetFile, OpenFile, ParseData, SaveDoc, Create
 from config import DATA_DIR
 from ..db import action
 from ..db.models.async_models import Result
 from . import checks
 import gzip
+import chardet
+
+
+def to_str(value: Union[str, bytes]):
+    if isinstance(value, bytes):
+        res = chardet.detect(record)
+        encoding = res['encoding']
+        return value.decode(encoding=encoding)
+    else:
+        return value
 
 
 def create_record(
@@ -18,11 +29,13 @@ def create_record(
 
 def create_records(
     filepath: str,
-    records: list,
+    records: list[str],
     ) -> None:
     save = SaveDoc(filepath)
     for record in records:
-        save.write(record)
+        _str = to_str(record)
+        print(_str)
+        save.write(_str)
 
 
 def return_content(filepath: str):
@@ -64,6 +77,7 @@ async def check_and_entry(
     
     file = get_file(file_id)
     data = return_content(file)[:limit]
+
     if not await action.check_exist_data(
         user_id=user_id,
         project_name=project_name,
@@ -91,9 +105,11 @@ def pretty_row(
     header: str,
     row: str,
 ) -> str:
-    sep = re.findall(r'[^\w\s]+', row)[0]
-    row_s = row.split(sep=sep)
-    header_s = header.split(sep=sep)
+    
+    sep = re.findall(r'[^\w\s]+', row)
+    print(sep)
+    row_s = row.split(sep=sep[0])
+    header_s = header.split(sep=sep[0])
     pretty_list = list(zip(header_s, row_s))
 
     pretty_str = '\n'.join(f"{key}: {value}" for key, value in pretty_list)

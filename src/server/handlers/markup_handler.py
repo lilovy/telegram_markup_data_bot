@@ -28,7 +28,7 @@ def mimetype_to_type(mimetype: str) -> str:
     default_mime_types = {
             'text/plain': 'txt',
             'text/csv': 'csv',
-            'application/gzip': 'gz'
+            'application/gzip': 'csv.gz'
         }
     return default_mime_types[mimetype]
 

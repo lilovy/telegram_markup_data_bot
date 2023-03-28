@@ -10,7 +10,7 @@ import gzip
 import chardet
 
 
-def to_str(value: Union[str, bytes]):
+def to_str(value: Union[str, bytes]) -> str:
     if isinstance(value, bytes):
         res = chardet.detect(record)
         encoding = res['encoding']

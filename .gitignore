@@ -152,4 +152,4 @@ cython_debug/
 #.idea/
 src/data/project_file/
 test.py
-src/data/db/*
+src/data/db/
